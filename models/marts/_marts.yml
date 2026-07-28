@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: fct_daily_performance
+    description: >
+      Daily ecommerce performance by acquisition source, medium,
+      device category, and country.
+
+    columns:
+      - name: event_date
+        description: GA4 event date.
+        data_tests:
+          - not_null
+
+      - name: event_count
+        description: Number of GA4 events.
+        data_tests:
+          - not_null
+
+      - name: users
+        description: Distinct anonymous GA4 users.
+        data_tests:
+          - not_null
+
+      - name: sessions
+        description: Distinct GA4 sessions.
+        data_tests:
+          - not_null
+
+      - name: transactions
+        description: Distinct ecommerce transactions.
+        data_tests:
+          - not_null
+
+      - name: purchase_revenue
+        description: Total purchase revenue.
+        data_tests:
+          - not_null

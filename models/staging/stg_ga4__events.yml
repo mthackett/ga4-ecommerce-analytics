@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: stg_ga4__events
+    description: "Staged GA4 ecommerce events from the BigQuery public sample ecommerce dataset. Flattens commonly used event, session, traffic, device, geo, and ecommerce fields."
+    columns:
+      - name: event_key
+        description: "Synthetic event-level key generated from user_pseudo_id, event_timestamp, and event_name."
+        tests:
+          - not_null
+
+      - name: event_date
+        description: "Raw GA4 event date in YYYYMMDD format."
+        tests:
+          - not_null
+
+      - name: event_dt
+        description: "Parsed event date."
+
+      - name: event_timestamp
+        description: "Event timestamp converted from microseconds to timestamp."
+
+      - name: event_name
+        description: "GA4 event name, such as page_view, view_item, add_to_cart, begin_checkout, or purchase."
+        tests:
+          - not_null
+
+      - name: user_pseudo_id
+        description: "Anonymous GA4 user identifier."
+        tests:
+          - not_null
+
+      - name: ga_session_id
+        description: "GA session identifier extracted from event_params."
+
+      - name: traffic_source
+        description: "First-user traffic source from GA4 traffic_source struct."
+
+      - name: traffic_medium
+        description: "First-user traffic medium from GA4 traffic_source struct."
+
+      - name: device_category
+        description: "Device category such as desktop, mobile, or tablet."
+
+      - name: transaction_id
+        description: "Ecommerce transaction ID for purchase events."
+
+      - name: purchase_revenue
+        description: "Purchase revenue associated with ecommerce purchase events."

@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: int_ga4__transactions
+    description: >
+      One row per valid ecommerce transaction. Invalid transaction
+      identifiers and duplicate purchase events are excluded.
+
+    columns:
+      - name: transaction_id
+        description: Valid unique ecommerce transaction identifier.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: event_date
+        description: Date on which the canonical purchase event occurred.
+        data_tests:
+          - not_null
+
+      - name: user_pseudo_id
+        description: Anonymous identifier for the purchaser.
+        data_tests:
+          - not_null
+
+      - name: purchase_revenue
+        description: Deduplicated revenue associated with the transaction.
+        data_tests:
+          - not_null

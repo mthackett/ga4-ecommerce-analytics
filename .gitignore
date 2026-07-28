@@ -1,0 +1,18 @@
+# dbt-generated files
+target/
+dbt_packages/
+logs/
+
+# Local environments
+.env
+.venv/
+venv/
+__pycache__/
+
+# Local dbt connection configuration
+profiles.yml
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
