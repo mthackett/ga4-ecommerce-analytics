@@ -4,13 +4,32 @@ with valid_purchase_events as (
         event_key,
         event_date,
         event_timestamp,
+
         user_pseudo_id,
+        ga_session_id,
+
+        concat(
+            user_pseudo_id,
+            '-',
+            cast(ga_session_id as string)
+        ) as session_key,
+
         transaction_id,
+
         traffic_source,
         traffic_medium,
+        traffic_campaign,
+
+        platform,
         device_category,
+
         country,
-        purchase_revenue
+        region,
+        city,
+
+        purchase_revenue,
+        total_item_quantity,
+        unique_items
 
     from {{ ref('stg_ga4__events') }}
 
@@ -22,7 +41,8 @@ with valid_purchase_events as (
 ),
 
 deduplicated_transactions as (
-
+    -- Select only the first valid transaction ID
+    
     select *
 
     from valid_purchase_events
@@ -35,14 +55,28 @@ deduplicated_transactions as (
 )
 
 select
-    event_date,
-    event_timestamp as transaction_timestamp,
-    user_pseudo_id,
     transaction_id,
+
+    event_date as transaction_date,
+    event_timestamp as transaction_timestamp,
+
+    user_pseudo_id,
+    ga_session_id,
+    session_key,
+
     traffic_source,
     traffic_medium,
+    traffic_campaign,
+
+    platform,
     device_category,
+
     country,
-    coalesce(purchase_revenue, 0) as purchase_revenue
+    region,
+    city,
+
+    coalesce(purchase_revenue, 0) as purchase_revenue,
+    coalesce(total_item_quantity, 0) as total_item_quantity,
+    coalesce(unique_items, 0) as unique_items
 
 from deduplicated_transactions

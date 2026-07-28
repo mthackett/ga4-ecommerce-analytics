@@ -36,3 +36,117 @@ models:
         description: Total purchase revenue.
         data_tests:
           - not_null
+
+  - name: fct_funnel_performance
+    description: >
+      Ecommerce funnel performance aggregated by session date,
+      traffic source, traffic medium, device category, and country.
+      Includes observed stage-reach sessions, strict ordered-funnel
+      sessions, valid transactions, purchasers, and deduplicated revenue.
+
+    columns:
+      - name: session_date
+        description: Date on which the session began.
+        data_tests:
+          - not_null
+
+      - name: traffic_source
+        description: GA4 traffic source associated with the session.
+
+      - name: traffic_medium
+        description: GA4 traffic medium associated with the session.
+
+      - name: device_category
+        description: Device category associated with the session.
+
+      - name: country
+        description: Country associated with the session.
+
+      - name: total_sessions
+        description: Number of sessions in the reporting segment.
+        data_tests:
+          - not_null
+
+      - name: users
+        description: >
+          Distinct users within the reporting segment. This metric
+          is not additive across dates or dimensional segments.
+        data_tests:
+          - not_null
+
+      - name: view_item_sessions
+        description: Sessions containing at least one view_item event.
+        data_tests:
+          - not_null
+
+      - name: add_to_cart_sessions
+        description: Sessions containing at least one add_to_cart event.
+        data_tests:
+          - not_null
+
+      - name: begin_checkout_sessions
+        description: Sessions containing at least one begin_checkout event.
+        data_tests:
+          - not_null
+
+      - name: shipping_sessions
+        description: Sessions containing at least one add_shipping_info event.
+        data_tests:
+          - not_null
+
+      - name: payment_sessions
+        description: Sessions containing at least one add_payment_info event.
+        data_tests:
+          - not_null
+
+      - name: valid_purchase_sessions
+        description: Sessions containing at least one valid deduplicated transaction.
+        data_tests:
+          - not_null
+
+      - name: purchasers
+        description: >
+          Distinct purchasers within the reporting segment. This metric
+          is not additive across dates or dimensional segments.
+        data_tests:
+          - not_null
+
+      - name: ordered_cart_sessions
+        description: Sessions in which add_to_cart occurred after view_item.
+
+      - name: ordered_checkout_sessions
+        description: Sessions reaching begin_checkout after the preceding ordered stages.
+
+      - name: ordered_shipping_sessions
+        description: Sessions reaching add_shipping_info after the preceding ordered stages.
+
+      - name: ordered_payment_sessions
+        description: Sessions reaching add_payment_info after the preceding ordered stages.
+
+      - name: completed_ordered_funnel_sessions
+        description: Sessions completing the entire recorded funnel in chronological order.
+
+      - name: transactions
+        description: Number of valid deduplicated transactions.
+        data_tests:
+          - not_null
+
+      - name: purchase_revenue
+        description: Deduplicated purchase revenue.
+        data_tests:
+          - not_null
+
+      - name: view_to_cart_sessions
+        description: Sessions recording view_item followed by add_to_cart.
+
+      - name: cart_to_checkout_sessions
+        description: Sessions recording add_to_cart followed by begin_checkout.
+
+      - name: checkout_to_shipping_sessions
+        description: Sessions recording begin_checkout followed by add_shipping_info.
+
+      - name: shipping_to_payment_sessions
+        description: Sessions recording add_shipping_info followed by add_payment_info.
+
+      - name: payment_to_purchase_sessions
+        description: Sessions recording add_payment_info followed by a valid purchase.
