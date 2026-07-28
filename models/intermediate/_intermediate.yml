@@ -3,23 +3,39 @@ version: 2
 models:
   - name: int_ga4__transactions
     description: >
-      One row per valid ecommerce transaction. Invalid transaction
-      identifiers and duplicate purchase events are excluded.
+      One row per valid ecommerce transaction. Excludes null, blank,
+      and '(not set)' transaction identifiers and deduplicates repeated
+      purchase events by retaining the earliest event.
 
     columns:
       - name: transaction_id
-        description: Valid unique ecommerce transaction identifier.
+        description: Unique valid ecommerce transaction identifier.
         data_tests:
           - not_null
           - unique
 
-      - name: event_date
-        description: Date on which the canonical purchase event occurred.
+      - name: transaction_date
+        description: Date of the canonical purchase event.
+        data_tests:
+          - not_null
+
+      - name: transaction_timestamp
+        description: Timestamp of the canonical purchase event.
         data_tests:
           - not_null
 
       - name: user_pseudo_id
-        description: Anonymous identifier for the purchaser.
+        description: Anonymous GA4 identifier for the purchaser.
+        data_tests:
+          - not_null
+
+      - name: ga_session_id
+        description: GA4 session identifier associated with the transaction.
+        data_tests:
+          - not_null
+
+      - name: session_key
+        description: Composite user and GA4 session identifier.
         data_tests:
           - not_null
 
@@ -27,3 +43,56 @@ models:
         description: Deduplicated revenue associated with the transaction.
         data_tests:
           - not_null
+
+  - name: int_ga4__session_funnel
+    description: >
+      One row per GA4 session with observed ecommerce funnel stages,
+      first-stage timestamps, ordered progression flags, valid
+      transactions, and deduplicated purchase revenue.
+
+    columns:
+      - name: session_key
+        description: Composite user and GA4 session identifier.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: user_pseudo_id
+        description: Anonymous GA4 user identifier.
+        data_tests:
+          - not_null
+
+      - name: ga_session_id
+        description: GA4 session identifier.
+        data_tests:
+          - not_null
+
+      - name: session_date
+        description: Date on which the session began.
+        data_tests:
+          - not_null
+
+      - name: transactions
+        description: Number of valid transactions recorded in the session.
+        data_tests:
+          - not_null
+
+      - name: purchase_revenue
+        description: Deduplicated purchase revenue recorded in the session.
+        data_tests:
+          - not_null
+
+      - name: progressed_view_to_cart
+        description: Session recorded view_item followed by add_to_cart.
+
+      - name: progressed_cart_to_checkout
+        description: Session recorded add_to_cart followed by begin_checkout.
+
+      - name: progressed_checkout_to_shipping
+        description: Session recorded begin_checkout followed by add_shipping_info.
+
+      - name: progressed_shipping_to_payment
+        description: Session recorded add_shipping_info followed by add_payment_info.
+
+      - name: progressed_payment_to_purchase
+        description: Session recorded add_payment_info followed by a valid purchase.
