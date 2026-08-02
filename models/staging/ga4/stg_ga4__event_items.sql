@@ -59,8 +59,8 @@ with source_item_events as (
         with offset as item_index
 
     where events._table_suffix between
-        replace('{{ var("dev_start_date") }}', '-', '')
-        and replace('{{ var("dev_end_date") }}', '-', '')
+        replace('{{ var("ga4_start_date") }}', '-', '')
+        and replace('{{ var("ga4_end_date") }}', '-', '')
 
 )
 
