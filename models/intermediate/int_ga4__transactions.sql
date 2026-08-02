@@ -56,6 +56,7 @@ deduplicated_transactions as (
 
 select
     transaction_id,
+    event_key as purchase_event_key,
 
     event_date as transaction_date,
     event_timestamp as transaction_timestamp,

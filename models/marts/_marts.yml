@@ -150,3 +150,99 @@ models:
 
       - name: payment_to_purchase_sessions
         description: Sessions recording add_payment_info followed by a valid purchase.
+
+  - name: fct_product_performance
+    description: >
+      Daily product performance combining item interaction events with
+      canonical transaction-backed purchase items. Uses normalized item
+      name as the cross-funnel product key because GA4 item IDs vary
+      between parent products and purchased SKU variants.
+
+    columns:
+      - name: product_performance_key
+        description: >
+          Unique key for the event-date and normalized-product grain.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: event_date
+        description: GA4 event date.
+        data_tests:
+          - not_null
+
+      - name: product_key
+        description: >
+          Lowercased and whitespace-normalized item name used as the
+          cross-funnel product identifier.
+        data_tests:
+          - not_null
+
+      - name: product_name
+        description: Display name reported in the GA4 item array.
+        data_tests:
+          - not_null
+
+      - name: observed_item_ids
+        description: >
+          Distinct parent-product or SKU identifiers observed for the
+          product during the day. This metric is not additive across dates.
+        data_tests:
+          - not_null
+
+      - name: product_view_events
+        description: >
+          Distinct view_item events containing the product. This metric
+          is not additive across products because one event can contain
+          multiple products.
+        data_tests:
+          - not_null
+
+      - name: add_to_cart_events
+        description: >
+          Distinct add_to_cart events containing the product. This metric
+          is not additive across products.
+        data_tests:
+          - not_null
+
+      - name: begin_checkout_events
+        description: >
+          Distinct begin_checkout events containing the product. This
+          metric is not additive across products.
+        data_tests:
+          - not_null
+
+      - name: product_transactions
+        description: >
+          Valid deduplicated transactions containing the product. This
+          metric is not additive across products because one transaction
+          can contain multiple products.
+        data_tests:
+          - not_null
+
+      - name: units_purchased
+        description: Number of purchased product units.
+        data_tests:
+          - not_null
+
+      - name: item_revenue
+        description: >
+          Product-attributed revenue from canonical transaction items.
+          This can differ slightly from event-level purchase revenue.
+        data_tests:
+          - not_null
+
+      - name: cart_events_per_view_event
+        description: >
+          Ratio of add-to-cart events to product-view events. Null when
+          no product-view events were recorded.
+
+      - name: transactions_per_view_event
+        description: >
+          Ratio of product transactions to product-view events. This is
+          an aggregate activity ratio, not an ordered user conversion rate.
+
+      - name: revenue_per_view_event
+        description: >
+          Product-attributed revenue divided by product-view events.
+          Null when no product-view events were recorded.
