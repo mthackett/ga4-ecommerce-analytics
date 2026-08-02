@@ -26,5 +26,5 @@ models:
       +materialized: table
 
 vars:
-  dev_start_date: "2020-11-27"
-  dev_end_date: "2020-11-30"
+  ga4_start_date: "2020-11-01"
+  ga4_end_date: "2021-01-31"

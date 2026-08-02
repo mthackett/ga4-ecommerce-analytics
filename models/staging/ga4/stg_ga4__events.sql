@@ -53,5 +53,5 @@ from `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
 
 --where _table_suffix between '{{ var("start_date", "20201127") }}' and '{{ var("end_date", "20201130") }}'
 where _table_suffix between
-    replace('{{ var("dev_start_date") }}', '-', '')
-    and replace('{{ var("dev_end_date") }}', '-', '')
+    replace('{{ var("ga4_start_date") }}', '-', '')
+    and replace('{{ var("ga4_end_date") }}', '-', '')
