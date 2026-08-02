@@ -36,7 +36,7 @@ with event_metrics as (
 transaction_metrics as (
 
     select
-        event_date,
+        transaction_date as event_date,
         traffic_source,
         traffic_medium,
         device_category,
@@ -49,7 +49,7 @@ transaction_metrics as (
     from {{ ref('int_ga4__transactions') }}
 
     group by
-        event_date,
+        transaction_date,
         traffic_source,
         traffic_medium,
         device_category,
