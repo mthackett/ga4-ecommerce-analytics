@@ -1,15 +1,18 @@
-Welcome to your new dbt project!
 
-### Using the starter project
+### Cost-aware development
 
-Try running the following commands:
-- dbt run
-- dbt test
+The project uses configurable `ga4_start_date` and `ga4_end_date`
+variables to control the source-table range.
 
+Development initially used the four-day Black Friday–Cyber Monday
+window, providing a small but behaviorally rich dataset for validating
+model grains, transaction deduplication, funnel logic, and product
+identity.
 
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+After validation, the repository defaults were promoted to the complete
+2020-11-01 through 2021-01-31 dataset. The full project completed
+successfully with 8 models and 53 data tests.
+
+BigQuery query usage was monitored through
+`INFORMATION_SCHEMA.JOBS_BY_PROJECT` to track jobs, bytes processed,
+and bytes billed.
