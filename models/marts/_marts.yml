@@ -3,8 +3,10 @@ version: 2
 models:
   - name: fct_daily_performance
     description: >
-      Daily ecommerce performance by acquisition source, medium,
-      device category, and country.
+      One row per event date, traffic source, traffic medium,
+      device category, and country. Provides daily ecommerce
+      performance metrics including events, users, sessions,
+      transactions, and purchase revenue.
 
     columns:
       - name: event_date
@@ -39,10 +41,10 @@ models:
 
   - name: fct_funnel_performance
     description: >
-      Ecommerce funnel performance aggregated by session date,
-      traffic source, traffic medium, device category, and country.
-      Includes observed stage-reach sessions, strict ordered-funnel
-      sessions, valid transactions, purchasers, and deduplicated revenue.
+      One row per session date, traffic source, traffic medium,
+      device category, and country. Includes observed stage-reach
+      sessions, strict ordered-funnel sessions, valid transactions,
+      purchasers, and deduplicated revenue.
 
     columns:
       - name: session_date
