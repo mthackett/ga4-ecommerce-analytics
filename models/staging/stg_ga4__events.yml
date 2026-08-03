@@ -6,12 +6,12 @@ models:
     columns:
       - name: event_key
         description: "Synthetic event-level key generated from user_pseudo_id, event_timestamp, and event_name."
-        tests:
+        data_tests:
           - not_null
 
       - name: event_date
         description: "Raw GA4 event date in YYYYMMDD format."
-        tests:
+        data_tests:
           - not_null
 
       - name: event_dt
@@ -22,12 +22,12 @@ models:
 
       - name: event_name
         description: "GA4 event name, such as page_view, view_item, add_to_cart, begin_checkout, or purchase."
-        tests:
+        data_tests:
           - not_null
 
       - name: user_pseudo_id
         description: "Anonymous GA4 user identifier."
-        tests:
+        data_tests:
           - not_null
 
       - name: ga_session_id
