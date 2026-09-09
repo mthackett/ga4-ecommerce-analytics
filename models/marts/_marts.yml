@@ -13,6 +13,18 @@ models:
         description: GA4 event date.
         data_tests:
           - not_null
+          
+      - name: traffic_source
+        description: First-user traffic source associated with the reporting segment.
+
+      - name: traffic_medium
+        description: First-user traffic medium associated with the reporting segment.
+
+      - name: device_category
+        description: Device category associated with the reporting segment.
+
+      - name: country
+        description: Country associated with the reporting segment.
 
       - name: event_count
         description: Number of GA4 events.
@@ -248,3 +260,72 @@ models:
         description: >
           Product-attributed revenue divided by product-view events.
           Null when no product-view events were recorded.
+
+  - name: rpt_funnel_stages
+    description: >
+      Long-format reporting view of the strict ordered ecommerce funnel.
+      Reshapes ordered stage-reach session metrics from
+      fct_funnel_performance for funnel visualization in BI tools.
+
+    columns:
+      - name: session_date
+        description: Date on which the session began.
+        data_tests:
+          - not_null
+
+      - name: stage_order
+        description: Numeric ordering of the ecommerce funnel stage.
+        data_tests:
+          - not_null
+
+      - name: funnel_stage
+        description: Human-readable ordered ecommerce funnel stage.
+        data_tests:
+          - not_null
+
+      - name: stage_sessions
+        description: >
+          Number of sessions reaching this stage of the strict ordered
+          ecommerce funnel.
+        data_tests:
+          - not_null
+
+  - name: rpt_ordered_funnel_stages
+    description: >
+      Long-form reporting model for cumulative ordered ecommerce funnel
+      progression. A session is counted at a stage only when it has completed
+      that stage and all preceding funnel stages in chronological order.
+      Intervening events do not invalidate progression.
+
+    columns:
+      - name: session_date
+        description: Date on which the session began.
+        data_tests:
+          - not_null
+
+      - name: traffic_source
+        description: GA4 traffic source associated with the session.
+
+      - name: traffic_medium
+        description: GA4 traffic medium associated with the session.
+
+      - name: device_category
+        description: Device category associated with the session.
+
+      - name: country
+        description: Country associated with the session.
+
+      - name: funnel_stage
+        description: Stage in the ordered ecommerce purchase funnel.
+
+      - name: stage_order
+        description: Numeric position of the stage in the ordered purchase funnel.
+        data_tests:
+          - not_null
+
+      - name: stage_sessions
+        description: >
+          Number of sessions reaching this stage after completing all preceding
+          funnel stages in chronological order.
+        data_tests:
+          - not_null
