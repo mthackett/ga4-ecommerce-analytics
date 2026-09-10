@@ -15,10 +15,10 @@ models:
           - not_null
           
       - name: traffic_source
-        description: First-user traffic source associated with the reporting segment.
+        description: GA4 traffic source associated with the reporting segment.
 
       - name: traffic_medium
-        description: First-user traffic medium associated with the reporting segment.
+        description: GA4 traffic medium associated with the reporting segment.
 
       - name: device_category
         description: Device category associated with the reporting segment.
@@ -85,6 +85,14 @@ models:
         description: >
           Distinct users within the reporting segment. This metric
           is not additive across dates or dimensional segments.
+        data_tests:
+          - not_null
+
+      - name: total_engagement_time_seconds
+        description: >
+          Total GA4 engagement time across sessions in the reporting
+          segment, measured in seconds. Derived from session-level
+          engagement time aggregated from event-level engagement_time_msec.
         data_tests:
           - not_null
 
@@ -263,9 +271,11 @@ models:
 
   - name: rpt_funnel_stages
     description: >
-      Long-format reporting view of the strict ordered ecommerce funnel.
-      Reshapes ordered stage-reach session metrics from
-      fct_funnel_performance for funnel visualization in BI tools.
+      Long-form reporting model for observed ecommerce funnel stage reach.
+      Reshapes stage-level session metrics from fct_funnel_performance
+      for funnel visualization in BI tools. Sessions are counted when
+      they contain the corresponding funnel event and are not required
+      to have completed preceding stages.
 
     columns:
       - name: session_date
@@ -273,20 +283,32 @@ models:
         data_tests:
           - not_null
 
-      - name: stage_order
-        description: Numeric ordering of the ecommerce funnel stage.
+      - name: traffic_source
+        description: GA4 traffic source associated with the session.
+
+      - name: traffic_medium
+        description: GA4 traffic medium associated with the session.
+
+      - name: device_category
+        description: Device category associated with the session.
+
+      - name: country
+        description: Country associated with the session.
+
+      - name: funnel_stage
+        description: Observed ecommerce funnel stage.
         data_tests:
           - not_null
 
-      - name: funnel_stage
-        description: Human-readable ordered ecommerce funnel stage.
+      - name: stage_order
+        description: Numeric position of the stage in the expected purchase journey.
         data_tests:
           - not_null
 
       - name: stage_sessions
         description: >
-          Number of sessions reaching this stage of the strict ordered
-          ecommerce funnel.
+          Number of sessions containing the event associated with this
+          funnel stage, regardless of whether preceding stages occurred.
         data_tests:
           - not_null
 
@@ -329,3 +351,107 @@ models:
           funnel stages in chronological order.
         data_tests:
           - not_null
+
+  - name: rpt_funnel_step_conversion
+    description: >
+      Long-form reporting model for pairwise ecommerce funnel progression.
+      Each row represents a funnel transition within a reporting segment
+      and provides the additive numerator and denominator required to
+      calculate step-to-step conversion rates correctly in BI tools.
+
+    columns:
+      - name: session_date
+        description: Date on which the session began.
+        data_tests:
+          - not_null
+
+      - name: traffic_source
+        description: GA4 traffic source associated with the reporting segment.
+
+      - name: traffic_medium
+        description: GA4 traffic medium associated with the reporting segment.
+
+      - name: device_category
+        description: Device category associated with the reporting segment.
+
+      - name: country
+        description: Country associated with the reporting segment.
+
+      - name: funnel_step
+        description: Human-readable ecommerce funnel transition.
+        data_tests:
+          - not_null
+
+      - name: step_order
+        description: Numeric position of the funnel transition in the purchase journey.
+        data_tests:
+          - not_null
+
+      - name: starting_sessions
+        description: >
+          Number of sessions containing the starting stage of the funnel
+          transition.
+        data_tests:
+          - not_null
+
+      - name: progressed_sessions
+        description: >
+          Number of sessions in which the starting stage was followed
+          chronologically by the next funnel stage.
+        data_tests:
+          - not_null
+
+  - name: rpt_engagement_conversion
+    description: >
+      Long-form reporting model relating GA4 session engagement time to
+      ecommerce outcomes. Groups sessions into ordered engagement-time
+      bands while preserving reporting dimensions and additive measures
+      so conversion and revenue metrics can be recalculated correctly
+      under BI filters.
+
+    columns:
+      - name: session_date
+        description: Date on which the session began.
+        data_tests:
+          - not_null
+
+      - name: traffic_source
+        description: GA4 traffic source associated with the reporting segment.
+
+      - name: traffic_medium
+        description: GA4 traffic medium associated with the reporting segment.
+
+      - name: device_category
+        description: Device category associated with the reporting segment.
+
+      - name: country
+        description: Country associated with the reporting segment.
+
+      - name: engagement_band
+        description: >
+          Ordered band of total GA4 engagement time recorded for the session.
+        data_tests:
+          - not_null
+
+      - name: band_order
+        description: Numeric ordering of engagement bands from shortest to longest.
+        data_tests:
+          - not_null
+
+      - name: sessions
+        description: Number of sessions within the engagement-time band and reporting segment.
+        data_tests:
+          - not_null
+
+      - name: purchase_sessions
+        description: Number of sessions within the segment containing a valid purchase.
+        data_tests:
+          - not_null
+
+      - name: purchase_revenue
+        description: >
+          Total deduplicated purchase revenue generated by sessions within
+          the engagement-time band and reporting segment.
+        data_tests:
+          - not_null
+

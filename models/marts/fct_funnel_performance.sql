@@ -8,6 +8,9 @@ select
     count(*) as total_sessions,
     count(distinct user_pseudo_id) as users,
 
+    sum(engagement_time_seconds)
+        as total_engagement_time_seconds,
+
     countif(has_view_item)
         as view_item_sessions,
 
