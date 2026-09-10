@@ -5,7 +5,9 @@ models:
     description: >
       One row per valid ecommerce transaction. Excludes null, blank,
       and '(not set)' transaction identifiers and deduplicates repeated
-      purchase events by retaining the earliest event.
+      purchase events by retaining the earliest recorded event for each
+      transaction ID. Preserves acquisition, device, geographic, and
+      ecommerce attributes from the canonical purchase event.
 
     columns:
       - name: transaction_id
@@ -13,6 +15,11 @@ models:
         data_tests:
           - not_null
           - unique
+
+      - name: purchase_event_key
+        description: Stable event key for the canonical purchase event.
+        data_tests:
+          - not_null
 
       - name: transaction_date
         description: Date of the canonical purchase event.
@@ -39,16 +46,145 @@ models:
         data_tests:
           - not_null
 
+      - name: traffic_source
+        description: GA4 traffic source associated with the purchase event.
+
+      - name: traffic_medium
+        description: GA4 traffic medium associated with the purchase event.
+
+      - name: traffic_campaign
+        description: GA4 traffic campaign associated with the purchase event.
+
+      - name: platform
+        description: Platform on which the purchase event occurred.
+
+      - name: device_category
+        description: Device category associated with the purchase event.
+
+      - name: country
+        description: Country associated with the purchase event.
+
+      - name: region
+        description: Geographic region associated with the purchase event.
+
+      - name: city
+        description: City associated with the purchase event.
+
       - name: purchase_revenue
         description: Deduplicated revenue associated with the transaction.
         data_tests:
           - not_null
 
+      - name: total_item_quantity
+        description: Total quantity of items recorded on the transaction.
+        data_tests:
+          - not_null
+
+      - name: unique_items
+        description: Number of unique items recorded on the transaction.
+        data_tests:
+          - not_null
+
+  - name: int_ga4__transaction_items
+    description: >
+      One row per item within a valid deduplicated ecommerce transaction.
+      Joins canonical purchase transactions to their corresponding item-level
+      records and preserves product, merchandising, and promotion attributes.
+
+    columns:
+      - name: transaction_item_key
+        description: Composite transaction and item-index identifier.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: transaction_id
+        description: Valid ecommerce transaction identifier.
+        data_tests:
+          - not_null
+
+      - name: purchase_event_key
+        description: Stable event key for the canonical purchase event.
+        data_tests:
+          - not_null
+
+      - name: transaction_timestamp
+        description: Timestamp of the canonical purchase event.
+        data_tests:
+          - not_null
+
+      - name: purchase_date
+        description: Date of the canonical purchase event.
+        data_tests:
+          - not_null
+
+      - name: item_index
+        description: Zero-based position of the item within the purchase event.
+        data_tests:
+          - not_null
+
+      - name: item_id
+        description: GA4 item identifier.
+
+      - name: item_name
+        description: Item name recorded on the purchase event.
+
+      - name: item_brand
+        description: Brand associated with the item.
+
+      - name: item_variant
+        description: Product variant associated with the item.
+
+      - name: item_category
+        description: Primary item category.
+
+      - name: item_category2
+        description: Second-level item category.
+
+      - name: item_category3
+        description: Third-level item category.
+
+      - name: item_category4
+        description: Fourth-level item category.
+
+      - name: item_category5
+        description: Fifth-level item category.
+
+      - name: price
+        description: Recorded unit price of the item.
+
+      - name: quantity
+        description: Quantity of the item purchased.
+
+      - name: item_revenue
+        description: Revenue attributed to the item on the purchase event.
+
+      - name: item_list_id
+        description: Identifier of the item list associated with the item.
+
+      - name: item_list_name
+        description: Name of the item list associated with the item.
+
+      - name: item_list_index
+        description: Position of the item within its associated item list.
+
+      - name: promotion_id
+        description: Promotion identifier recorded for the purchased item.
+
+      - name: promotion_name
+        description: Promotion name recorded for the purchased item.
+
+      - name: creative_name
+        description: Promotion creative name recorded for the purchased item.
+
+      - name: creative_slot
+        description: Promotion placement or creative slot recorded for the purchased item.
+        
   - name: int_ga4__session_funnel
     description: >
-      One row per GA4 session with observed ecommerce funnel stages,
-      first-stage timestamps, ordered progression flags, valid
-      transactions, and deduplicated purchase revenue.
+      One row per GA4 session with session attributes, engagement time,
+      observed ecommerce funnel stages, first-stage timestamps, ordered
+      progression flags, valid transactions, and deduplicated purchase revenue.
 
     columns:
       - name: session_key
@@ -72,15 +208,91 @@ models:
         data_tests:
           - not_null
 
-      - name: transactions
-        description: Number of valid transactions recorded in the session.
+      - name: session_started_at
+        description: Timestamp of the first recorded event in the session.
+
+      - name: session_ended_at
+        description: Timestamp of the last recorded event in the session.
+
+      - name: engagement_time_seconds
+        description: >
+          Total GA4 engagement time recorded during the session, in seconds.
+          Derived by summing event-level engagement_time_msec values.
         data_tests:
           - not_null
 
-      - name: purchase_revenue
-        description: Deduplicated purchase revenue recorded in the session.
-        data_tests:
-          - not_null
+      - name: traffic_source
+        description: GA4 traffic source associated with the session.
+
+      - name: traffic_medium
+        description: GA4 traffic medium associated with the session.
+
+      - name: device_category
+        description: Device category associated with the session.
+
+      - name: country
+        description: Country associated with the session.
+
+      - name: first_view_item_at
+        description: Timestamp of the first view_item event in the session.
+
+      - name: first_add_to_cart_at
+        description: Timestamp of the first add_to_cart event in the session.
+
+      - name: first_begin_checkout_at
+        description: Timestamp of the first begin_checkout event in the session.
+
+      - name: first_add_shipping_info_at
+        description: Timestamp of the first add_shipping_info event in the session.
+
+      - name: first_add_payment_info_at
+        description: Timestamp of the first add_payment_info event in the session.
+
+      - name: first_valid_purchase_at
+        description: Timestamp of the first valid deduplicated purchase in the session.
+
+      - name: has_view_item
+        description: True when the session contains at least one view_item event.
+
+      - name: has_add_to_cart
+        description: True when the session contains at least one add_to_cart event.
+
+      - name: has_begin_checkout
+        description: True when the session contains at least one begin_checkout event.
+
+      - name: has_add_shipping_info
+        description: True when the session contains at least one add_shipping_info event.
+
+      - name: has_add_payment_info
+        description: True when the session contains at least one add_payment_info event.
+
+      - name: has_valid_purchase
+        description: True when the session contains at least one valid deduplicated purchase.
+
+      - name: reached_ordered_cart
+        description: >
+          True when the session recorded view_item followed by add_to_cart
+          in chronological order.
+
+      - name: reached_ordered_checkout
+        description: >
+          True when the session reached begin_checkout after completing the
+          preceding ordered funnel stages.
+
+      - name: reached_ordered_shipping
+        description: >
+          True when the session reached add_shipping_info after completing the
+          preceding ordered funnel stages.
+
+      - name: reached_ordered_payment
+        description: >
+          True when the session reached add_payment_info after completing the
+          preceding ordered funnel stages.
+
+      - name: completed_ordered_funnel
+        description: >
+          True when the session completed the full recorded ecommerce funnel
+          in chronological order through a valid purchase.
 
       - name: progressed_view_to_cart
         description: Session recorded view_item followed by add_to_cart.
@@ -96,3 +308,13 @@ models:
 
       - name: progressed_payment_to_purchase
         description: Session recorded add_payment_info followed by a valid purchase.
+
+      - name: transactions
+        description: Number of valid transactions recorded in the session.
+        data_tests:
+          - not_null
+
+      - name: purchase_revenue
+        description: Deduplicated purchase revenue recorded in the session.
+        data_tests:
+          - not_null

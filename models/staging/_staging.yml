@@ -1,0 +1,222 @@
+version: 2
+
+models:
+  - name: stg_ga4__events
+    description: >
+      Event-level staging model for the GA4 public ecommerce sample.
+      Flattens commonly used session parameters, traffic-source attributes,
+      device and geographic dimensions, engagement fields, and ecommerce
+      transaction attributes from the raw GA4 BigQuery export.
+
+    columns:
+      - name: event_date
+        description: Raw GA4 event date in YYYYMMDD format.
+        data_tests:
+          - not_null
+
+      - name: event_timestamp
+        description: GA4 event timestamp converted from microseconds to a timestamp.
+        data_tests:
+          - not_null
+
+      - name: event_name
+        description: GA4 event name.
+        data_tests:
+          - not_null
+
+      - name: user_pseudo_id
+        description: Anonymous GA4 user identifier.
+        data_tests:
+          - not_null
+
+      - name: user_first_touch_timestamp
+        description: >
+          GA4 timestamp representing the user's first recorded interaction,
+          stored in microseconds.
+
+      - name: is_active_user
+        description: Active-user indicator extracted from GA4 event parameters when present.
+
+      - name: platform
+        description: Platform associated with the event.
+
+      - name: ga_session_id
+        description: GA4 session identifier extracted from event parameters.
+
+      - name: ga_session_number
+        description: GA4 session number for the user extracted from event parameters.
+
+      - name: page_location
+        description: Page URL associated with the event when available.
+
+      - name: page_title
+        description: Page title associated with the event when available.
+
+      - name: page_referrer
+        description: Referring page URL associated with the event when available.
+
+      - name: engagement_time_msec
+        description: >
+          GA4 engagement time increment recorded on the event, measured
+          in milliseconds.
+
+      - name: session_engaged
+        description: GA4 session-engaged indicator extracted from event parameters.
+
+      - name: traffic_source
+        description: First-user traffic source from the GA4 traffic_source struct.
+
+      - name: traffic_medium
+        description: First-user traffic medium from the GA4 traffic_source struct.
+
+      - name: traffic_campaign
+        description: First-user campaign name from the GA4 traffic_source struct.
+
+      - name: device_category
+        description: Device category such as desktop, mobile, or tablet.
+
+      - name: operating_system
+        description: Operating system associated with the device.
+
+      - name: device_language
+        description: Language configured for the device.
+
+      - name: browser
+        description: Web browser associated with the event.
+
+      - name: country
+        description: Country associated with the event.
+
+      - name: region
+        description: Geographic region associated with the event.
+
+      - name: city
+        description: City associated with the event.
+
+      - name: transaction_id
+        description: Ecommerce transaction identifier when present.
+
+      - name: purchase_revenue
+        description: Purchase revenue recorded on the ecommerce event.
+
+      - name: total_item_quantity
+        description: Total item quantity recorded on the ecommerce event.
+
+      - name: unique_items
+        description: Number of unique ecommerce items recorded on the event.
+
+      - name: event_key
+        description: >
+          Synthetic event-level key generated from user_pseudo_id,
+          event_timestamp, and event_name.
+        data_tests:
+          - not_null
+
+
+  - name: stg_ga4__event_items
+    description: >
+      Item-level staging model for GA4 ecommerce events. Unnests the repeated
+      items array into one row per item per event and preserves product,
+      merchandising, item-list, and promotion attributes.
+
+    columns:
+      - name: event_item_key
+        description: >
+          Synthetic item-level key generated from the parent event key
+          and the item's array position.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: event_date
+        description: Parsed date of the GA4 event.
+        data_tests:
+          - not_null
+
+      - name: event_timestamp
+        description: GA4 event timestamp converted from microseconds to a timestamp.
+        data_tests:
+          - not_null
+
+      - name: event_name
+        description: GA4 event containing the item.
+        data_tests:
+          - not_null
+
+      - name: user_pseudo_id
+        description: Anonymous GA4 user identifier.
+        data_tests:
+          - not_null
+
+      - name: ga_session_id
+        description: GA4 session identifier associated with the item event.
+
+      - name: transaction_id
+        description: Ecommerce transaction identifier when present.
+
+      - name: event_key
+        description: Synthetic identifier for the parent GA4 event.
+        data_tests:
+          - not_null
+
+      - name: item_index
+        description: Zero-based position of the item within the event's items array.
+        data_tests:
+          - not_null
+
+      - name: item_id
+        description: GA4 item identifier.
+
+      - name: item_name
+        description: Item name.
+
+      - name: item_brand
+        description: Brand associated with the item.
+
+      - name: item_variant
+        description: Product variant associated with the item.
+
+      - name: item_category
+        description: Primary item category.
+
+      - name: item_category2
+        description: Second-level item category.
+
+      - name: item_category3
+        description: Third-level item category.
+
+      - name: item_category4
+        description: Fourth-level item category.
+
+      - name: item_category5
+        description: Fifth-level item category.
+
+      - name: price
+        description: Recorded unit price of the item.
+
+      - name: quantity
+        description: Quantity of the item associated with the event.
+
+      - name: item_revenue
+        description: Item-level revenue recorded on the event.
+
+      - name: item_list_id
+        description: Identifier of the item list associated with the item.
+
+      - name: item_list_name
+        description: Name of the item list associated with the item.
+
+      - name: item_list_index
+        description: Position of the item within its associated item list.
+
+      - name: promotion_id
+        description: Promotion identifier associated with the item when present.
+
+      - name: promotion_name
+        description: Promotion name associated with the item when present.
+
+      - name: creative_name
+        description: Promotion creative name associated with the item when present.
+
+      - name: creative_slot
+        description: Promotion placement or creative slot associated with the item when present.

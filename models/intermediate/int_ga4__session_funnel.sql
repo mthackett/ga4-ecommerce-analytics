@@ -14,6 +14,9 @@ with session_events as (
         min(event_timestamp) as session_started_at,
         max(event_timestamp) as session_ended_at,
 
+        sum(coalesce(engagement_time_msec, 0)) / 1000.0
+        as engagement_time_seconds,
+
         array_agg(
             traffic_source ignore nulls
             order by event_timestamp
@@ -121,6 +124,7 @@ select
     session_date,
     session_started_at,
     session_ended_at,
+    engagement_time_seconds,
 
     traffic_source,
     traffic_medium,
