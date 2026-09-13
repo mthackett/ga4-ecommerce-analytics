@@ -2,202 +2,259 @@
 
 GA4 ecommerce analytics using BigQuery, dbt, and Data Studio to identify high-leverage opportunities across acquisition, conversion, and product performance.
 
+![GA4 Ecommerce Analytics Architecture](docs/images/architecture-diagram.png)
+
+[View the analysis report](https://docs.google.com/document/d/1YDcbx9SGObNGpedTLYqri0T7n7gApJKuDeseCUxaRpE/edit?usp=sharing)
+
+## Executive Takeaway
+
+The strongest growth opportunity is not simply acquiring more traffic.
+
+The analysis points instead to improving early-funnel conversion, evaluating acquisition channels on traffic quality rather than volume alone, and allocating merchandising effort toward products that monetize attention efficiently.
+
+With limited optimization capacity before the next peak season, the highest-priority opportunities are:
+
+1. Early-funnel product and add-to-cart conversion
+2. Acquisition-quality and paid-search diagnostics
+3. Product-level merchandising efficiency
+4. Behavioral segmentation using engagement as an intent signal
+
+---
+
 ## Business Question
 
 An ecommerce team is preparing for its next holiday planning cycle. Leadership has strong topline traffic and revenue data from the prior peak season, but limited clarity on where revenue was actually won or lost across acquisition, conversion, and product performance.
 
 The analysis addresses a practical resource-allocation question:
 
-> **Where should limited marketing, merchandising, and conversion-optimization effort be focused before the next peak season?**
+> Where should limited marketing, merchandising, and conversion-optimization effort be focused before the next peak season?
 
 The goal is to distinguish traffic volume from traffic quality, identify conversion leakage, evaluate how effectively products turn attention into revenue, and translate those findings into prioritized recommendations.
 
+---
+
 ## Dataset
 
-The project uses the public Google Merchandise Store GA4 ecommerce sample covering November 2020 through January 2021.
+The project uses the public Google Merchandise Store GA4 ecommerce sample covering November 1, 2020 through January 31, 2021.
 
-Across the 92-day analysis window, the dataset contains approximately:
+Across the 92-day analysis window:
 
-- 4.3 million events
-- 270,000 users
-- 360,000 sessions
-- 4,451 transactions
-- $307,000 in purchase revenue
+| Metric | Value |
+| Events | ~4.3 million |
+| Users | ~270,000 |
+| Sessions | ~360,000 |
+| Transactions | ~4,450 |
+| Purchase revenue | ~$307,000 |
 
 The source data is event-level GA4 data stored in BigQuery.
 
+---
+
 ## Tech Stack
 
-- **GA4** for event-level ecommerce data
-- **BigQuery** for cloud data warehousing and SQL analysis
-- **dbt** for transformation, modeling, testing, and reusable business logic
-- **Data Studio** for decision-oriented reporting and visualization
-- **Git and GitHub** for version control and project documentation
+- GA4 — event-level ecommerce data
+- BigQuery — cloud data warehousing and SQL analysis
+- dbt — transformation, modeling, testing, and reusable business logic
+- Data Studio (formerly Looker Studio) — decision-oriented reporting and visualization
+- Git / GitHub — version control and project documentation
+
+---
 
 ## Analytical Architecture
 
-```text
-GA4 Event Data
-      |
-      v
-   BigQuery
-      |
-      v
-dbt Staging Models
-      |
-      v
-Intermediate Models
-      |
-      v
-Analytical Marts
-      |
-      v
-Reporting Models
-      |
-      v
-Data Studio Reports
-```
+The project separates source preparation, reusable transformation logic, analytical fact tables, and reporting-specific models so that core business logic is not embedded directly in the BI layer.
 
-The dbt project separates source preparation, reusable transformation logic, analytical fact tables, and reporting-specific models so that business logic is not embedded directly in the dashboard layer.
+The modeling flow is:
 
-### Core fact tables
+GA4 events → BigQuery → dbt staging → intermediate models → analytical marts → reporting models → Data Studio
 
-- `fct_daily_performance` for daily traffic, transactions, revenue, and conversion performance
-- `fct_funnel_performance` for session behavior across key ecommerce funnel stages
-- `fct_product_performance` for product demand, purchasing behavior, and revenue performance
+### Staging
 
-The reporting layer contains additional models designed for presentation-specific needs such as ordered funnel stages, dashboard dimensions, and display logic.
+Staging models clean and standardize raw GA4 fields while preserving source-level meaning.
+
+### Intermediate
+
+Intermediate models contain reusable transformation and business logic that should not be tied directly to a single dashboard or final analytical table.
+
+### Analytical Marts
+
+The primary fact tables organize the data around the project's major analytical subjects:
+
+- `fct_daily_performance` — daily traffic, transactions, revenue, and conversion performance
+- `fct_funnel_performance` — session behavior across key ecommerce funnel stages
+- `fct_product_performance` — product demand, purchasing behavior, and revenue performance
+
+### Reporting Layer
+
+Reporting models reshape analytical outputs for specific visualization requirements without moving core calculations into Data Studio.
+
+This keeps the reporting layer relatively thin while making calculations easier to test, reuse, and maintain.
+
+---
 
 ## Reports
 
 The final analysis is delivered through three decision-oriented reports.
 
-### Executive Summary
+| Report | Primary Purpose |
+|---|---|
+| [Executive Summary](https://datastudio.google.com/s/toBMze5zJ8s) | Overall ecommerce performance, acquisition, traffic and revenue trends, device behavior, and key commercial KPIs |
+| [Funnel Performance](https://datastudio.google.com/reporting/ca2c8e85-095e-412c-bdc7-2912a6236e0f) | Stage progression, conversion leakage, engagement behavior, and funnel efficiency |
+| [Product Performance](https://datastudio.google.com/reporting/c5249fd7-08c3-496e-bccc-2ddae51a7df9) | Product demand, revenue, purchasing behavior, monetization efficiency, and revenue distribution |
 
-Focuses on:
-
-- overall ecommerce performance
-- acquisition performance
-- traffic and revenue trends
-- device behavior
-- key commercial KPIs
-
-### Funnel Performance
-
-Focuses on:
-
-- progression through major ecommerce stages
-- stage-level loss
-- traffic volume
-- engagement behavior
-- conversion efficiency
-
-### Product Performance
-
-Focuses on:
-
-- product revenue
-- product demand
-- purchasing behavior
-- conversion efficiency
-- revenue concentration
-
-## Supporting Analysis
-
-The repository also includes supporting analytical work used to investigate questions that do not belong directly in the reporting layer.
-
-Examples include:
-
-- acquisition performance
-- funnel leakage
-- product performance
-- revenue concentration
-- CPC break-even economics
-- daily trend and anomaly detection
-- executive performance summaries
-
-These analyses extend the project beyond KPI reporting and help identify where additional commercial effort may have the highest expected return.
+---
 
 ## Key Findings
 
-### 1. Traffic volume and traffic quality are not the same
+### 1. Early-funnel leakage is the largest conversion opportunity
 
-Google organic and direct traffic generated the largest session volumes, but acquisition quality varied materially by source and medium. High-volume channels should therefore not be evaluated on traffic alone.
+Only 5.2% of sessions that viewed a product ultimately reached purchase.
 
-The planning implication is to compare sources on downstream outcomes such as conversion and revenue contribution rather than assuming the largest traffic sources deserve the largest incremental investment.
+The largest early constraint occurs between product view and add to cart, where only 19.7% of product-view sessions progress. Once customers move deeper into the journey, progression becomes materially stronger.
 
-### 2. Conversion improvement can create meaningful value without requiring more traffic
+The evidence therefore points toward product-detail and cart-intent formation as a higher-priority diagnostic area than broad late-stage checkout redesign.
 
-The site generated roughly 360,000 sessions and 4,451 transactions, with an overall session conversion rate of about 1.1 percent.
+---
 
-That makes conversion efficiency a material planning lever. Improvements to high-friction stages can increase revenue from traffic the business is already acquiring.
+### 2. Acquisition quality varies substantially by source
 
-### 3. Device behavior suggests that traffic should not be treated as a single customer experience
+Organic and Direct generated the greatest scale among the major identifiable traffic sources, but traffic volume did not translate evenly into commercial value.
 
-Desktop produced more transactions and revenue than mobile during the sample period. The device split indicates that acquisition, engagement, and conversion behavior should be evaluated separately rather than only through blended sitewide KPIs.
+Google / Organic generated approximately 112,700 sessions and $83,300 in revenue, while Direct generated approximately 83,500 sessions and $68,200.
 
-For the next peak cycle, device-level funnel performance should be used to identify whether mobile experience improvements offer an attractive conversion opportunity.
+At the same time, reported conversion rate and revenue per session varied materially across sources.
 
-### 4. Revenue is distributed across a relatively broad product base
+This means acquisition decisions should incorporate downstream outcomes such as conversion and revenue efficiency rather than treating session volume as the primary measure of channel value.
 
-Revenue concentration analysis shows that the top 10 products generated about 23 percent of revenue, while 36 products were required to reach 50 percent of total revenue.
+Paid traffic in particular should be evaluated before additional investment is scaled.
 
-This suggests that performance is not dependent on a single dominant product. Merchandising decisions should therefore consider a broader set of products rather than concentrating effort only on a small number of best sellers.
+---
 
-### 5. Product attention and product revenue should be evaluated together
+### 3. Product attention and product monetization are not the same thing
 
-Product performance varies not only by revenue, but also by how effectively product interest turns into purchases.
+High product-view volume does not consistently correspond to high revenue efficiency.
 
-Products with strong demand but weak purchase efficiency can represent conversion or merchandising opportunities, while products with lower traffic but strong revenue efficiency may deserve greater visibility.
+Some products monetize relatively limited exposure effectively, while others attract substantial attention without converting that attention into proportional revenue.
 
-### 6. Measurement quality matters when interpreting product performance
+This creates two distinct opportunity types:
 
-A portion of item revenue appears without a corresponding recorded product-view event.
+- High traffic + weak revenue efficiency — possible conversion friction, positioning problems, or weak product economics
+- Lower traffic + strong revenue efficiency — possible underexposure and merchandising opportunity
 
-That does not invalidate the product analysis, but it is a reminder that behavioral event data should be validated before treating every funnel transition as a complete representation of customer behavior.
+A product opportunity matrix combining demand and monetization efficiency is therefore more useful than ranking products only by traffic or revenue.
+
+---
+
+### 4. Engagement is a strong signal of purchase intent
+
+Purchase likelihood rises sharply with active engagement time:
+
+| Active Engagement | Purchase Rate |
+|---|---:|
+| 1–3 minutes | ~0.6% |
+| 3–10 minutes | ~6.7% |
+| 10+ minutes | ~23.8% |
+
+This relationship should not be interpreted causally. The analysis does not establish that increasing session duration will cause customers to purchase.
+
+Instead, engagement is most useful as a predictive and diagnostic signal that could support behavioral segmentation, remarketing, propensity modeling, or targeted onsite interventions.
+
+The objective is to recognize high-intent behavior, not artificially increase time on site.
+
+---
+
+## Supporting Findings
+
+### Revenue is diversified across the product portfolio
+
+No single product dominates overall revenue.
+
+The top 10 products generated approximately 23% of revenue, and roughly 36 products were required to reach 50% of total revenue.
+
+This suggests that merchandising strategy should not depend on finding or promoting a single hero product.
+
+---
+
+### Mobile does not appear to be the primary aggregate performance problem
+
+Desktop generates substantially more traffic and revenue, but aggregate mobile performance is slightly stronger on both conversion rate and revenue per session.
+
+That makes a broad mobile redesign a lower-priority starting point than the larger early-funnel and acquisition-quality opportunities identified elsewhere in the analysis.
+
+Device-level behavior remains worth monitoring, but the aggregate evidence does not indicate an obvious mobile conversion crisis.
+
+---
+
+### Demand is concentrated around the peak holiday window
+
+Revenue and transaction activity are strongest from Cyber Monday through mid-December before declining later in the holiday period.
+
+For future peak-season planning, major acquisition, merchandising, and conversion initiatives should therefore be ready before peak demand arrives, rather than deployed reactively during it.
+
+---
 
 ## Recommendations
 
-### 1. Allocate acquisition budget based on downstream value, not traffic volume
+### 1. Prioritize early-funnel product and add-to-cart conversion
 
-Use conversion and revenue performance alongside session volume when prioritizing channels.
+Investigate why a large share of product interest fails to progress into cart intent.
 
-A source that delivers fewer sessions but materially stronger conversion can be more valuable than a much larger low-intent source.
+Initial areas to evaluate include:
 
-### 2. Treat conversion optimization as a primary growth lever
+- product-page clarity and merchandising
+- pricing and offer presentation
+- add-to-cart CTA behavior
+- high-traffic products with weak cart progression
+- differences in early-funnel performance by acquisition source
 
-The existing traffic base is large enough that relatively small improvements in conversion can produce meaningful revenue gains.
+Where the cause is uncertain, use controlled experimentation rather than assuming the issue is purely UX-related.
 
-Prioritize stages with both high session volume and meaningful drop-off rather than optimizing small segments with limited commercial impact.
+---
 
-### 3. Evaluate mobile and desktop funnels separately
+### 2. Evaluate acquisition based on traffic quality
 
-Avoid relying only on blended conversion metrics.
+Use conversion and revenue performance alongside session volume when prioritizing acquisition channels.
 
-Use device-level funnel analysis to identify where mobile behavior diverges from desktop and whether experience changes, checkout improvements, or merchandising changes could recover lost demand.
+Specific next steps include:
 
-### 4. Prioritize products using both demand and efficiency
+- protect large, productive Organic and Direct traffic sources
+- audit paid-search targeting and landing-page alignment
+- evaluate paid traffic against revenue per session and campaign economics
+- validate unusually strong referral attribution before using it for budget allocation
 
-Do not rank products only by revenue.
+More traffic is not automatically more valuable traffic.
 
-Combine product views, purchase behavior, conversion efficiency, and revenue contribution to identify:
+---
 
-- high-demand products with weak conversion
-- efficient products that may be underexposed
-- strong revenue contributors worth protecting
-- products that consume attention without producing proportional revenue
+### 3. Prioritize products using both demand and monetization efficiency
 
-### 5. Preserve a diversified merchandising strategy
+Do not rank products only by revenue or traffic.
 
-Because revenue is not dominated by a single product, the business should avoid overconcentrating merchandising effort around only a few top sellers.
+Evaluate products across metrics such as:
 
-The broader product mix creates opportunities to improve category visibility, recommendation logic, and promotion strategy across a wider set of commercially relevant products.
+- product views
+- cart behavior
+- purchase behavior
+- revenue per view
+- unit sales
+- total revenue contribution
 
-### 6. Add measurement validation to future peak-season reporting
+This makes it possible to distinguish high-demand products with monetization friction from efficient products that may deserve additional exposure.
 
-Investigate cases where revenue appears without expected upstream product interaction events.
+---
 
-For production reporting, event completeness and reconciliation checks should be treated as part of the analytics system, not as a separate cleanup task.
+### 4. Use engagement as an intent signal
+
+Investigate the behaviors associated with highly engaged purchasers and determine whether they can support:
+
+- remarketing audiences
+- behavioral segmentation
+- purchase-propensity models
+- targeted onsite interventions
+
+The goal should be to identify high-intent customer behavior rather than optimize session duration as an end in itself.
+
+---
 
 ## Data Quality and Validation
 
@@ -209,89 +266,76 @@ Custom dbt tests validate important modeling assumptions, including:
 - product metric integrity
 - revenue reconciliation
 
-These checks help ensure that reporting outputs preserve the intended grain and that revenue remains consistent across analytical layers.
+These checks help ensure that reporting outputs preserve their intended grain and that revenue remains consistent across analytical layers.
 
-## Repository Structure
+The project also surfaced cases where item revenue appears without a corresponding recorded product-view event.
 
-```text
-ga4-ecommerce-analytics/
-|
-|-- analyses/                         # Supporting analytical queries
-|
-|-- models/
-|   |-- staging/                      # Source preparation and normalization
-|   |-- intermediate/                 # Reusable transformation and business logic
-|   `-- marts/
-|       |-- reporting/                # Dashboard-specific reporting models
-|       |-- fct_daily_performance.sql
-|       |-- fct_funnel_performance.sql
-|       `-- fct_product_performance.sql
-|
-|-- tests/
-|   |-- assert_fct_daily_performance_grain.sql
-|   |-- assert_fct_funnel_performance_grain.sql
-|   |-- assert_fct_product_performance_grain.sql
-|   |-- assert_product_metric_integrity.sql
-|   `-- assert_product_revenue_reconciles.sql
-|
-|-- macros/
-|-- seeds/
-|-- snapshots/
-|-- dbt_project.yml
-`-- README.md
-```
+Rather than treating event-level behavioral data as inherently complete, the analysis treats measurement validation as part of the analytics system itself.
 
-## Modeling Approach
+---
 
-The project follows a layered analytics workflow.
-
-### Staging
-
-Staging models clean and standardize raw GA4 fields while preserving source-level meaning.
-
-### Intermediate
-
-Intermediate models contain reusable logic that should not be tied directly to a single dashboard or final analytical table.
-
-### Marts
-
-Fact tables organize the data around major analytical subjects such as daily performance, funnel behavior, and product performance.
-
-### Reporting
-
-Reporting models reshape analytical outputs for specific visualization or presentation requirements without moving core business logic into the BI tool.
-
-This separation improves maintainability, makes calculations easier to validate, and allows the reporting layer to remain relatively thin.
-
-### Cost-Aware Development
+## Cost-Aware Development
 
 The project uses configurable `ga4_start_date` and `ga4_end_date` variables to control the GA4 source-table range.
 
-Development began with the four-day Black Friday through Cyber Monday window, providing a small but behaviorally rich dataset for validating model grain, transaction deduplication, funnel logic, and product identity before scaling to the full dataset.
+Development began with the four-day Black Friday through Cyber Monday window. This provided a small but behaviorally rich dataset for validating:
 
-This reduced typical development query scans from roughly 1.5 GB to about 100 MB, allowing the modeling logic to be iterated on at a fraction of the full-data query cost.
+- model grain
+- transaction deduplication
+- funnel logic
+- product identity
+- metric calculations
+
+Using the reduced development window lowered typical query scans from roughly 1.5 GB to about 100 MB, allowing modeling logic to be iterated on at a fraction of the full-data query cost.
 
 After validation, the project was expanded to the complete 2020-11-01 through 2021-01-31 analysis window.
 
 BigQuery usage was monitored through `INFORMATION_SCHEMA.JOBS_BY_PROJECT` to track query volume, bytes processed, and bytes billed during development.
 
+---
+
 ## Analytical Design Principles
 
-Several design choices guided the project:
+Several principles guided the implementation:
 
-- Separate traffic volume from traffic quality.
-- Keep additive components available so rates can be recalculated correctly at different reporting grains.
-- Avoid embedding core business logic in Data Studio.
-- Use reporting models for presentation-specific transformations.
-- Validate model grain explicitly.
-- Reconcile revenue across layers.
-- Use headline-oriented reporting to surface the business implication of each visual.
-- Treat anomalies and concentration as decision-support tools rather than isolated statistics.
+- Preserve additive components so rates can be recalculated correctly at different reporting grains.
+- Keep core business logic outside the BI layer.
+- Use reporting models only for presentation-specific transformations.
+- Explicitly validate model grain and reconcile revenue across layers.
+- Design visualizations around decision-relevant business implications rather than isolated metrics.
 
-## Project Objective
+---
 
-This project was designed not simply to report ecommerce KPIs, but to answer a resource-allocation question:
+## Repository Guide
 
-> **Where is additional marketing, merchandising, or conversion-optimization effort most likely to improve commercial outcomes?**
+The main areas of the repository are:
 
-The result is an end-to-end analytics workflow that moves from raw event data through tested analytical models to business-facing recommendations.
+- `models/` — dbt staging, intermediate, mart, and reporting models
+- `analyses/` — supporting analytical queries used to investigate business questions
+- `tests/` — custom assertions for grain, metric integrity, and revenue reconciliation
+- `macros/` — reusable dbt logic
+- `dbt_project.yml` — dbt project configuration
+
+For a technical review, the analytical marts and custom tests provide the clearest view into the project's modeling and validation approach.
+
+---
+
+## Limitations and Production Extensions
+
+This analysis uses a public GA4 sample and therefore does not contain several inputs that would normally influence production recommendations.
+
+Important missing dimensions include:
+
+- advertising cost and campaign-level ROAS
+- product margin
+- inventory constraints
+- customer-level profitability
+- repeat-purchase behavior
+- experimentation outcomes
+- richer attribution and landing-page context
+
+The findings should therefore be treated as prioritization signals rather than proof of causality.
+
+In a production environment, the analysis could be extended by joining campaign economics, product margin and inventory data, customer behavior, and richer attribution dimensions.
+
+Those additions would move the analysis from identifying where to investigate toward estimating which intervention is likely to produce the highest incremental return.
